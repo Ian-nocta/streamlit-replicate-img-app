@@ -161,8 +161,8 @@ def main_page(submitted: bool, num_outputs: int,
         img = image_select(
             label="Hmm you're hard to read 🤔 (Click on the '>' in the top left for the questions and right-click to save! 😉)",
             images=[
-                "gallery/true_aura.jpg", "gallery/love_aura.jpg",
-                "gallery/laugh_aura.jpg",
+                "gallery/true_aura.png", "gallery/love_aura.png",
+                "gallery/laugh_aura.png",
             ],
             captions=["Light blue: self-expressive, intuitive, deep, wise, great communicator",
                       "Red: Passionate, confident, loving, ambitious, hard-working",
