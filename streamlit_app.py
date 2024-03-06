@@ -7,11 +7,11 @@ from utils import icon
 from streamlit_image_select import image_select
 
 # UI configurations
-st.set_page_config(page_title="Replicate Image Generator",
-                   page_icon=":bridge_at_night:",
+st.set_page_config(page_title="Your Aura Reading",
+                   page_icon=":crystal_ball:",
                    layout="wide")
-icon.show_icon(":foggy:")
-st.markdown("# :rainbow[Your Text-to-Image Artistry Studio]")
+icon.show_icon(":crystal_ball:")
+st.markdown("# :rainbow[Your Aura Reading]")
 
 # API Tokens and endpoints from `.streamlit/secrets.toml` file
 REPLICATE_API_TOKEN = st.secrets["REPLICATE_API_TOKEN"]
@@ -26,39 +26,27 @@ replicate_logo = "https://storage.googleapis.com/llama2_release/Screen%20Shot%20
 generated_images_placeholder = st.empty()
 gallery_placeholder = st.empty()
 
+def generate_prompt(color_choice, emotion):
+    return f"Create a high-fidelity, circular aura image that exudes a sense of energy and {emotion}. The aura should be a gradient, using only various shades of {color_choice} that seamlessly blend into one another. Start with a light, pastel shade of {color_choice} at the outermost edge, gradually transitioning to a vibrant, mid-tone shade in the middle, and finally, a deep, rich shade of {color_choice} at the innermost part of the circle. The transition between the shades should be smooth and refined, creating a polished, high-quality finish. The image should be centered on a black background to make the {color_choice} tones pop and to add depth and contrast to the overall composition."
 
 def configure_sidebar() -> None:
-    """
-    Setup and display the sidebar elements.
-
-    This function configures the sidebar of the Streamlit application, 
-    including the form for user inputs and the resources section.
-    """
     with st.sidebar:
         with st.form("my_form"):
-            st.info("**Yo fam! Start here ↓**", icon="👋🏾")
+            st.info(":rainbow**Lets get started↓**", icon="👋🏾")
             with st.expander(":rainbow[**Refine your output here**]"):
                 # Advanced Settings (for the curious minds!)
-                width = st.number_input("Width of output image", value=1024)
-                height = st.number_input("Height of output image", value=1024)
+
                 num_outputs = st.slider(
-                    "Number of images to output", value=1, min_value=1, max_value=4)
-                scheduler = st.selectbox('Scheduler', ('DDIM', 'DPMSolverMultistep', 'HeunDiscrete',
-                                                       'KarrasDPM', 'K_EULER_ANCESTRAL', 'K_EULER', 'PNDM'))
-                num_inference_steps = st.slider(
-                    "Number of denoising steps", value=50, min_value=1, max_value=500)
-                guidance_scale = st.slider(
-                    "Scale for classifier-free guidance", value=7.5, min_value=1.0, max_value=50.0, step=0.1)
-                prompt_strength = st.slider(
-                    "Prompt strength when using img2img/inpaint(1.0 corresponds to full destruction of infomation in image)", value=0.8, max_value=1.0, step=0.1)
-                refine = st.selectbox(
-                    "Select refine style to use (left out the other 2)", ("expert_ensemble_refiner", "None"))
-                high_noise_frac = st.slider(
-                    "Fraction of noise to use for `expert_ensemble_refiner`", value=0.8, max_value=1.0, step=0.1)
+                    "Number of images to output", value=0, min_value=1, max_value=1)
+                music_vibe = st.selectbox('Go to music vibe', ('', 'Lofi', 'Phonk',
+                                                       'Sad boi', 'Lit', 'Afrobeats', 'Amapiano','House'))
+                mood_emoji = st.selectbox("Choose an emoji that describes your mood", ("","😊", "😐", "😔", "😡", "😍", "😂"))
+                angel_number = st.slider(
+                    "Choose your angel number", value=0, min_value=0, max_value=999, step=111)
             prompt = st.text_area(
-                ":orange[**Enter prompt: start typing, Shakespeare ✍🏾**]",
-                value="An astronaut riding a rainbow unicorn, cinematic, dramatic")
-            negative_prompt = st.text_area(":orange[**Party poopers you don't want in image? 🙅🏽‍♂️**]",
+                ":orange[**Chose one colour to describe your mood✍🏾**]",
+                value="orange, for a fun mood")
+            negative_prompt = st.text_area(":orange[**Party poopers you don't want in your Aura?(Leave as is) 🙅🏽‍♂️**]",
                                            value="the absolute worst quality, distorted features",
                                            help="This is a negative prompt, basically type what you don't want to see in the generated image")
 
@@ -78,140 +66,115 @@ def configure_sidebar() -> None:
             ---
             Follow me on:
 
-            𝕏 → [@tonykipkemboi](https://twitter.com/tonykipkemboi)
+            Tiktok → [@aurascope2](https://www.tiktok.com/@aurascope2)
 
-            LinkedIn → [Tony Kipkemboi](https://www.linkedin.com/in/tonykipkemboi)
+            LinkedIn → [Ian McClue](https://www.linkedin.com/in/ian-mcclue-92786515a/)
 
             """
         )
 
-        return submitted, width, height, num_outputs, scheduler, num_inference_steps, guidance_scale, prompt_strength, refine, high_noise_frac, prompt, negative_prompt
+        # Parse the user input to extract color and emotion
+        color_choice, emotion = parse_user_input(prompt)
 
+        return submitted, num_outputs, music_vibe, mood_emoji, angel_number, color_choice, emotion, negative_prompt
 
-def main_page(submitted: bool, width: int, height: int, num_outputs: int,
-              scheduler: str, num_inference_steps: int, guidance_scale: float,
-              prompt_strength: float, refine: str, high_noise_frac: float,
-              prompt: str, negative_prompt: str) -> None:
-    """Main page layout and logic for generating images.
-
-    Args:
-        submitted (bool): Flag indicating whether the form has been submitted.
-        width (int): Width of the output image.
-        height (int): Height of the output image.
-        num_outputs (int): Number of images to output.
-        scheduler (str): Scheduler type for the model.
-        num_inference_steps (int): Number of denoising steps.
-        guidance_scale (float): Scale for classifier-free guidance.
-        prompt_strength (float): Prompt strength when using img2img/inpaint.
-        refine (str): Refine style to use.
-        high_noise_frac (float): Fraction of noise to use for `expert_ensemble_refiner`.
-        prompt (str): Text prompt for the image generation.
-        negative_prompt (str): Text prompt for elements to avoid in the image.
-    """
-    if submitted:
-        with st.status('👩🏾‍🍳 Whipping up your words into art...', expanded=True) as status:
-            st.write("⚙️ Model initiated")
-            st.write("🙆‍♀️ Stand up and strecth in the meantime")
-            try:
-                # Only call the API if the "Submit" button was pressed
-                if submitted:
-                    # Calling the replicate API to get the image
-                    with generated_images_placeholder.container():
-                        all_images = []  # List to store all generated images
-                        output = replicate.run(
-                            REPLICATE_MODEL_ENDPOINTSTABILITY,
-                            input={
-                                "prompt": prompt,
-                                "width": width,
-                                "height": height,
-                                "num_outputs": num_outputs,
-                                "scheduler": scheduler,
-                                "num_inference_steps": num_inference_steps,
-                                "guidance_scale": guidance_scale,
-                                "prompt_stregth": prompt_strength,
-                                "refine": refine,
-                                "high_noise_frac": high_noise_frac
-                            }
-                        )
-                        if output:
-                            st.toast(
-                                'Your image has been generated!', icon='😍')
-                            # Save generated image to session state
-                            st.session_state.generated_image = output
-
-                            # Displaying the image
-                            for image in st.session_state.generated_image:
-                                with st.container():
-                                    st.image(image, caption="Generated Image 🎈",
-                                             use_column_width=True)
-                                    # Add image to the list
-                                    all_images.append(image)
-
-                                    response = requests.get(image)
-                        # Save all generated images to session state
-                        st.session_state.all_images = all_images
-
-                        # Create a BytesIO object
-                        zip_io = io.BytesIO()
-
-                        # Download option for each image
-                        with zipfile.ZipFile(zip_io, 'w') as zipf:
-                            for i, image in enumerate(st.session_state.all_images):
-                                response = requests.get(image)
-                                if response.status_code == 200:
-                                    image_data = response.content
-                                    # Write each image to the zip file with a name
-                                    zipf.writestr(
-                                        f"output_file_{i+1}.png", image_data)
-                                else:
-                                    st.error(
-                                        f"Failed to fetch image {i+1} from {image}. Error code: {response.status_code}", icon="🚨")
-                        # Create a download button for the zip file
-                        st.download_button(
-                            ":red[**Download All Images**]", data=zip_io.getvalue(), file_name="output_files.zip", mime="application/zip", use_container_width=True)
-                status.update(label="✅ Images generated!",
-                              state="complete", expanded=False)
-            except Exception as e:
-                print(e)
-                st.error(f'Encountered an error: {e}', icon="🚨")
-
-    # If not submitted, chill here 🍹
+def parse_user_input(prompt: str) -> tuple:
+    if "," in prompt:
+        color_choice, emotion = prompt.split(", ")
+    elif " for " in prompt:
+        color_choice, emotion = prompt.split(" for ")
     else:
-        pass
+        color_choice, emotion = "", ""
+    return color_choice, emotion
 
-    # Gallery display for inspo
+def main_page(submitted: bool, num_outputs: int,
+              music_vibe: str, mood_emoji: str,
+              aura_number: int, color_choice: str,
+              emotion: str, negative_prompt: str) -> None:
+
+    if submitted:
+        with st.status('🧙‍♀️ Finally I can see your Aura justa few more seconds...', expanded=True) as status:
+             st.write("⚙️ Spells initiated")
+             st.write("🙆‍♀️ Stand up and strecth in the meantime")
+
+        try:
+            if submitted:
+                # Generate the prompt using the generate_prompt function
+                generated_prompt = generate_prompt(color_choice, emotion)
+
+                # Calling the replicate API to get the image
+                with generated_images_placeholder.container():
+                    all_images = []  # List to store all generated images
+                    output = replicate.run(
+                        REPLICATE_MODEL_ENDPOINTSTABILITY,
+                        input={
+                            "prompt": generated_prompt,  # Use the generated_prompt here
+                            "num_outputs": num_outputs
+                        }
+                    )
+
+                    if output:
+                        st.toast(
+                            'Your image has been generated!', icon='😍')
+                        # Save generated image to session state
+                        st.session_state.generated_image = output
+
+                        # Displaying the image
+                        for image in st.session_state.generated_image:
+                            with st.container():
+                                st.image(image, caption="Generated Image 🎈",
+                                         use_column_width=True)
+                                # Add image to the list
+                                all_images.append(image)
+
+                                response = requests.get(image)
+
+                    # Save all generated images to session state
+                    st.session_state.all_images = all_images
+
+                    # Create a BytesIO object
+                    zip_io = io.BytesIO()
+
+                    # Download option for each image
+                    with zipfile.ZipFile(zip_io, 'w') as zipf:
+                        for i, image in enumerate(st.session_state.all_images):
+                            response = requests.get(image)
+                            if response.status_code == 200:
+                                image_data = response.content
+                                # Write each image to the zip file with a name
+                                zipf.writestr(
+                                    f"output_file_{i+1}.png", image_data)
+                            else:
+                                st.error(
+                                    f"Failed to fetch image {i+1} from {image}. Error code: {response.status_code}", icon="🚨")
+
+                    # Create a download button for the zip file
+                    st.download_button(
+                        ":red[**Download All Images**]", data=zip_io.getvalue(), file_name="output_files.zip", mime="application/zip", use_container_width=True)
+
+        except Exception as e:
+            print(e)
+            st.error(f'Encountered an error: {e}', icon="🚨")
+
+# Gallery display for inspo
     with gallery_placeholder.container():
         img = image_select(
-            label="Like what you see? Right-click and save! It's not stealing if we're sharing! 😉",
+            label="Hmm you're hard to read 🤔 Answer the questions to he me out (Right-click and save!😉)",
             images=[
-                "gallery/farmer_sunset.png", "gallery/astro_on_unicorn.png",
-                "gallery/friends.png", "gallery/wizard.png", "gallery/puppy.png",
-                "gallery/cheetah.png", "gallery/viking.png",
+                "gallery/true_aura.jpg", "gallery/love_aura.jpg",
+                "gallery/laugh_aura.jpg",
             ],
-            captions=["A farmer tilling a farm with a tractor during sunset, cinematic, dramatic",
-                      "An astronaut riding a rainbow unicorn, cinematic, dramatic",
-                      "A group of friends laughing and dancing at a music festival, joyful atmosphere, 35mm film photography",
-                      "A wizard casting a spell, intense magical energy glowing from his hands, extremely detailed fantasy illustration",
-                      "A cute puppy playing in a field of flowers, shallow depth of field, Canon photography",
-                      "A cheetah mother nurses her cubs in the tall grass of the Serengeti. The early morning sun beams down through the grass. National Geographic photography by Frans Lanting",
-                      "A close-up portrait of a bearded viking warrior in a horned helmet. He stares intensely into the distance while holding a battle axe. Dramatic mood lighting, digital oil painting",
+            captions=["Light blue: self-expressive, intuitive, deep, wise, great communicator",
+                      "Red: Passionate, confident, loving, ambitious, hard-working",
+                      "Orange: jovial, humorous, adventurous, loves life ",
                       ],
             use_container_width=True
         )
 
 
 def main():
-    """
-    Main function to run the Streamlit application.
-
-    This function initializes the sidebar configuration and the main page layout.
-    It retrieves the user inputs from the sidebar, and passes them to the main page function.
-    The main page function then generates images based on these inputs.
-    """
-    submitted, width, height, num_outputs, scheduler, num_inference_steps, guidance_scale, prompt_strength, refine, high_noise_frac, prompt, negative_prompt = configure_sidebar()
-    main_page(submitted, width, height, num_outputs, scheduler, num_inference_steps,
-              guidance_scale, prompt_strength, refine, high_noise_frac, prompt, negative_prompt)
-
+    submitted, num_outputs, music_vibe, mood_emoji, angel_number, color_choice, emotion, negative_prompt = configure_sidebar()
+    main_page(submitted, num_outputs, music_vibe, mood_emoji, angel_number, color_choice, emotion, negative_prompt)
 
 if __name__ == "__main__":
     main()
