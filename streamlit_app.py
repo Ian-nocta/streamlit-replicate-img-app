@@ -93,7 +93,7 @@ def main_page(submitted: bool, num_outputs: int,
               emotion: str, negative_prompt: str) -> None:
 
     if submitted:
-        with st.status('🧙‍♀️ Finally I can see your Aura justa few more seconds...', expanded=True) as status:
+        with st.status('🧙‍♀️ Finally I can see your Aura just a few more seconds...', expanded=True) as status:
              st.write("⚙️ Spells initiated")
              st.write("🙆‍♀️ Stand up and strecth in the meantime")
 
