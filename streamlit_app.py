@@ -159,7 +159,7 @@ def main_page(submitted: bool, num_outputs: int,
 # Gallery display for inspo
     with gallery_placeholder.container():
         img = image_select(
-            label="Hmm you're hard to read 🤔 Answer the questions to help me out (Right-click and save!😉)",
+            label="Hmm you're hard to read 🤔 Answer the questions to help me out. (Click on the ">" in the top Left for the questions and Right-click and save!😉)",
             images=[
                 "gallery/true_aura.jpg", "gallery/love_aura.jpg",
                 "gallery/laugh_aura.jpg",
