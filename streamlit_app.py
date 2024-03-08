@@ -33,14 +33,14 @@ def configure_sidebar() -> None:
     with st.sidebar:
         with st.form("my_form"):
             st.info(":rainbow**Lets get started↓**", icon="👋🏾")
-            with st.expander(":rainbow[**Refine your output here**]"):
+            with st.expander(":rainbow[**Answer these Qs**]"):
                 # Advanced Settings (for the curious minds!)
 
                 num_outputs = st.slider(
                     "Number of images to output", value=0, min_value=1, max_value=1)
                 music_vibe = st.selectbox('Go to music vibe', ('', 'Lofi', 'Phonk',
-                                                       'Sad boi', 'Lit', 'Afrobeats', 'Amapiano','House'))
-                mood_emoji = st.selectbox("Choose an emoji that describes your mood", ("","😊", "😐", "😔", "😡", "😍", "😂"))
+                                                       'Sad boi','Romantic','Pop','Lit', 'Afrobeats', 'Amapiano','House','Synth-pop'))
+                mood_emoji = st.selectbox("Choose an emoji that describes your mood", ("","😊", "😰","😐", "😔","😒" ,"😡", "🥳","😍","😂","🤩"))
                 angel_number = st.slider(
                     "Choose your angel number", value=0, min_value=0, max_value=999, step=111)
             prompt = st.text_area(
