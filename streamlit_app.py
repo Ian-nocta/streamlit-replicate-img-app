@@ -64,11 +64,9 @@ def configure_sidebar() -> None:
         st.markdown(
             """
             ---
-            Follow me on:
+            Follow Aurascope on:
 
             Tiktok → [@aurascope2](https://www.tiktok.com/@aurascope2)
-
-            LinkedIn → [Ian McClue](https://www.linkedin.com/in/ian-mcclue-92786515a/)
 
             """
         )
