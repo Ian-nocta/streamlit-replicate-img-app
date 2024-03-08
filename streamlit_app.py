@@ -158,7 +158,7 @@ def main_page(submitted: bool, num_outputs: int,
     st.divider()
     footer = """<div style="text-align: center;">
                 <a href="https://visitorbadge.io/status?path=https%3A%2F%2Faurascope.streamlit.app%2F">
-                    <img src="https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Faurascope.streamlit.app%2F&label=Screenshot&share&labelColor=%232ccce4&countColor=%d95a00&style=plastic" />
+                    <img src="https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Faurascope.streamlit.app%2F&label=aurascope&labelColor=%23ffffff&countColor=%23000000&style=plastic" />
                 </a>
             </div>"""
     st.markdown(footer, unsafe_allow_html=True)
