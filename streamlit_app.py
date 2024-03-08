@@ -167,12 +167,14 @@ def main_page(submitted: bool, num_outputs: int,
         img = image_select(
             label="Hmm you're hard to read 🤔 (Click on the '>' in the top left for the questions and right-click to save pictures when ready! 😉)",
             images=[
-                "gallery/true_aura.png", "gallery/love_aura.png",
-                "gallery/laugh_aura.png",
+                 "gallery/love_aura.png", "gallery/laugh_aura.png", "gallery/yellow_aura.png", "gallery/green_aura.png","gallery/true_aura.png","gallery/purple_aura.png",
             ],
-            captions=["Light blue: self-expressive, intuitive, deep, wise, great communicator",
-                      "Red: Passionate, confident, loving, ambitious, hard-working",
+            captions=["Red: Passionate, confident, loving, ambitious, hard-working",                                         
                       "Orange: jovial, humorous, adventurous, loves life ",
+                      "Yellow: energetic, friendly, encouraging, happy, intelligent ",
+                      "Green: compassionate, healing, responible, caring, free-spirited",
+                      "Light blue: self-expressive, intuitive, deep, wise, great communicator", 
+                      "Violet: magical, creative, spiritual, calm",
                       ],
             use_container_width=True
         )
