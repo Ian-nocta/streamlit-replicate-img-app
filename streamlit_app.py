@@ -1,4 +1,3 @@
-import replicate
 import streamlit as st
 import requests
 import zipfile
@@ -91,7 +90,6 @@ def main_page(submitted: bool, num_outputs: int,
               music_vibe: str, mood_emoji: str,
               aura_number: int, color_choice: str,
               emotion: str, negative_prompt: str) -> None:
-
     if submitted:
         with st.status('🧙‍♀️ Finally I can see your Aura just a few more seconds...', expanded=True) as status:
              st.write("⚙️ Spells initiated")
@@ -156,6 +154,15 @@ def main_page(submitted: bool, num_outputs: int,
             print(e)
             st.error(f'Encountered an error: {e}', icon="🚨")
 
+    # Footer
+    st.divider()
+    footer = """<div style="text-align: center;">
+                <a href="https://visitorbadge.io/status?path=https%3A%2F%2Faurascope.streamlit.app%2F">
+                    <img src="https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Faurascope.streamlit.app%2F&label=Screenshot&share&labelColor=%232ccce4&countColor=%d95a00&style=plastic" />
+                </a>
+            </div>"""
+    st.markdown(footer, unsafe_allow_html=True)
+
 # Gallery display for inspo
     with gallery_placeholder.container():
         img = image_select(
@@ -171,10 +178,10 @@ def main_page(submitted: bool, num_outputs: int,
             use_container_width=True
         )
 
-
 def main():
     submitted, num_outputs, music_vibe, mood_emoji, angel_number, color_choice, emotion, negative_prompt = configure_sidebar()
     main_page(submitted, num_outputs, music_vibe, mood_emoji, angel_number, color_choice, emotion, negative_prompt)
 
+    
 if __name__ == "__main__":
     main()
