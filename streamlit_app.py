@@ -13,6 +13,21 @@ st.set_page_config(page_title="Your Aura Reading",
 icon.show_icon(":crystal_ball:")
 st.markdown("# :rainbow[Your Aura Reading]")
 
+#removing the github fork
+
+st.markdown(
+    """
+    <style>
+    .css-1jc7ptx, .e1ewe7hr3, .viewerBadge_container__1QSob,
+    .styles_viewerBadge__1yB5_, .viewerBadge_link__1S137,
+    .viewerBadge_text__1JaDK {
+        display: none;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # API Tokens and endpoints from `.streamlit/secrets.toml` file
 REPLICATE_API_TOKEN = st.secrets["REPLICATE_API_TOKEN"]
 REPLICATE_MODEL_ENDPOINTSTABILITY = st.secrets["REPLICATE_MODEL_ENDPOINTSTABILITY"]
