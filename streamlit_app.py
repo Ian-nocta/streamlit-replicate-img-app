@@ -54,7 +54,7 @@ def configure_sidebar() -> None:
                 # Advanced Settings (for the curious minds!)
                 user_name = st.text_input("Enter your name:")
                 num_outputs = st.slider(
-                    "Auras Count", value=0, min_value=1, max_value=1)
+                    "Number of Auras", value=0, min_value=1, max_value=1)
                 music_vibe = st.selectbox('Go to music vibe', ("", "💌🎧", "🎸🎧", "🍒🎧", "🔥🎧", "✨🎧", "💃🎧", "🌹"))
                 mood_emoji = st.selectbox("Which emoji describes your mood today", ("","😊", "😰","😐", "😔","😒" ,"😡", "🥳","😍","😂","🤩"))
                 angel_number = st.slider(
