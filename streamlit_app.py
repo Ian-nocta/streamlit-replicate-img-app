@@ -60,7 +60,7 @@ def configure_sidebar() -> None:
                 angel_number = st.slider(
                     "Choose your angel number😇", value=0, min_value=0, max_value=999, step=111)
             prompt = st.text_area(
-                ":orange[**Which colour would your bestie use to describes your personality✍🏾**]",
+                ":orange[**Which colour would your bestie use to describe your personality✍🏾**]",
                 value="orange, for a fun mood")
         
 
