@@ -12,6 +12,8 @@ st.set_page_config(page_title="Your Aura Reading",
                    layout="wide")
 icon.show_icon(":crystal_ball:")
 st.markdown("# :rainbow[Your Aura Reading]")
+st.markdown(":orange[<strong>Hmm you're hard to read 🤔</strong>]", unsafe_allow_html=True)
+
 
 #removing the github fork
 
@@ -50,20 +52,17 @@ def configure_sidebar() -> None:
             st.info(":rainbow**Lets get started↓**", icon="👋🏾")
             with st.expander(":rainbow[**Answer these Qs**]"):
                 # Advanced Settings (for the curious minds!)
-
+                user_name = st.text_input("Enter your name:")
                 num_outputs = st.slider(
-                    "Number of images to output", value=0, min_value=1, max_value=1)
-                music_vibe = st.selectbox('Go to music vibe', ('', 'Lofi', 'Phonk',
-                                                       'Sad boi','Romantic','Pop','Lit', 'Afrobeats', 'Amapiano','House','Synth-pop'))
-                mood_emoji = st.selectbox("Choose an emoji that describes your mood", ("","😊", "😰","😐", "😔","😒" ,"😡", "🥳","😍","😂","🤩"))
+                    "Auras Count", value=0, min_value=1, max_value=1)
+                music_vibe = st.selectbox('Go to music vibe', ("", "💌🎧", "🎸🎧", "🍒🎧", "🔥🎧", "✨🎧", "💃🎧", "🌹"))
+                mood_emoji = st.selectbox("Which emoji describes your mood today", ("","😊", "😰","😐", "😔","😒" ,"😡", "🥳","😍","😂","🤩"))
                 angel_number = st.slider(
-                    "Choose your angel number", value=0, min_value=0, max_value=999, step=111)
+                    "Choose your angel number😇", value=0, min_value=0, max_value=999, step=111)
             prompt = st.text_area(
-                ":orange[**Chose one colour to describe your mood✍🏾**]",
+                ":orange[**Which colour would your bestie use to describes your personality✍🏾**]",
                 value="orange, for a fun mood")
-            negative_prompt = st.text_area(":orange[**Party poopers you don't want in your Aura?(Leave as is) 🙅🏽‍♂️**]",
-                                           value="the absolute worst quality, distorted features",
-                                           help="This is a negative prompt, basically type what you don't want to see in the generated image")
+        
 
             # The Big Red "Submit" Button!
             submitted = st.form_submit_button(
@@ -89,7 +88,7 @@ def configure_sidebar() -> None:
         # Parse the user input to extract color and emotion
         color_choice, emotion = parse_user_input(prompt)
 
-        return submitted, num_outputs, music_vibe, mood_emoji, angel_number, color_choice, emotion, negative_prompt
+        return submitted, user_name, num_outputs, music_vibe, mood_emoji, angel_number, color_choice, emotion
 
 def parse_user_input(prompt: str) -> tuple:
     if "," in prompt:
@@ -100,14 +99,17 @@ def parse_user_input(prompt: str) -> tuple:
         color_choice, emotion = "", ""
     return color_choice, emotion
 
-def main_page(submitted: bool, num_outputs: int,
+def main_page(submitted: bool, user_name: str, num_outputs: int,
               music_vibe: str, mood_emoji: str,
               aura_number: int, color_choice: str,
-              emotion: str, negative_prompt: str) -> None:
+              emotion: str) -> None:
     if submitted:
-        with st.status('🧙‍♀️ Finally I can see your Aura just a few more seconds...', expanded=True) as status:
-             st.write("⚙️ Spells initiated")
-             st.write("🙆‍♀️ Stand up and strecth in the meantime")
+        # Include the user's name in the status message (if provided)
+        status_message = f"🧙‍♀️ Finally {user_name if user_name else 'I'} I can see your Aura just a few more seconds..."
+
+        with st.status(status_message, expanded=True) as status:
+            st.write("⚙️ Spells initiated")
+            st.write("🙆‍♀️ Stand up and stretch in the meantime")
 
         try:
             if submitted:
@@ -131,10 +133,14 @@ def main_page(submitted: bool, num_outputs: int,
                         # Save generated image to session state
                         st.session_state.generated_image = output
 
+                        # Display the user's name (if provided) in bold below the heading
+                        if user_name:
+                            st.markdown(f"<h2 style='text-align: center;'><strong>🤩Wow {user_name} your Aura is glowinggg💅🏼</strong></h2>", unsafe_allow_html=True)
+
                         # Displaying the image
                         for image in st.session_state.generated_image:
                             with st.container():
-                                st.image(image, caption="Generated Image 🎈",
+                                st.image(image, caption="Your Aura 🎈",
                                          use_column_width=True)
                                 # Add image to the list
                                 all_images.append(image)
@@ -168,6 +174,7 @@ def main_page(submitted: bool, num_outputs: int,
             print(e)
             st.error(f'Encountered an error: {e}', icon="🚨")
 
+
     # Footer
     st.divider()
     footer = """<div style="text-align: center;">
@@ -180,7 +187,7 @@ def main_page(submitted: bool, num_outputs: int,
 # Gallery display for inspo
     with gallery_placeholder.container():
         img = image_select(
-            label="Hmm you're hard to read 🤔 (Click on the '>' in the top left for the questions and right-click to save pictures when ready! 😉)",
+            label="(Click on the '>' in the top left for the questions and right-click to save pictures when ready! 😉)",
             images=[
                  "gallery/love_aura.png", "gallery/laugh_aura.png", "gallery/yellow_aura.png", "gallery/green_aura.png","gallery/true_aura.png","gallery/purple_aura.png",
             ],
@@ -195,8 +202,8 @@ def main_page(submitted: bool, num_outputs: int,
         )
 
 def main():
-    submitted, num_outputs, music_vibe, mood_emoji, angel_number, color_choice, emotion, negative_prompt = configure_sidebar()
-    main_page(submitted, num_outputs, music_vibe, mood_emoji, angel_number, color_choice, emotion, negative_prompt)
+    submitted, user_name, num_outputs, music_vibe, mood_emoji, angel_number, color_choice, emotion = configure_sidebar()
+    main_page(submitted, user_name, num_outputs, music_vibe, mood_emoji, angel_number, color_choice, emotion)
 
     
 if __name__ == "__main__":
